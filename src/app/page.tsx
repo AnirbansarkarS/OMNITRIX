@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
+import OmnitrixLogo from "@/components/ui/OmnitrixLogo";
 
 export default function LandingPage() {
     return (
@@ -17,10 +18,8 @@ export default function LandingPage() {
 
             {/* Nav */}
             <nav className="relative z-10 flex items-center justify-between px-8 py-5 border-b border-omni-border/30">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-omni-accent flex items-center justify-center">
-                        <span className="text-omni-bg font-bold text-xs">OX</span>
-                    </div>
+                <div className="flex items-center gap-3">
+                    <OmnitrixLogo size={36} />
                     <span className="text-omni-text font-bold text-lg tracking-wide">OMNITRIX</span>
                 </div>
                 <div className="flex items-center gap-3">

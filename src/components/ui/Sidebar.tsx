@@ -11,6 +11,7 @@ import {
     Sparkles,
     ChevronRight,
 } from "lucide-react";
+import OmnitrixLogo from "./OmnitrixLogo";
 
 const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -32,10 +33,8 @@ export default function Sidebar() {
             {/* Logo */}
             <div className="px-4 py-5 border-b border-omni-border">
                 <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-omni-accent flex items-center justify-center animate-glow">
-                        <span className="text-omni-bg font-bold text-xs">OX</span>
-                    </div>
-                    <span className="font-bold text-omni-text tracking-widest text-sm">OMNITRIX</span>
+                    <OmnitrixLogo size={32} className="animate-glow" />
+                    <span className="font-bold text-omni-text tracking-widest text-sm\">OMNITRIX</span>
                 </div>
             </div>
 
