@@ -1,0 +1,117 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-omni-bg text-omni-text font-sans antialiased;
+    min-height: 100vh;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-omni-surface;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-omni-border rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-omni-subtle;
+  }
+
+  ::selection {
+    background: rgba(0, 212, 255, 0.25);
+    color: #e8f4fd;
+  }
+}
+
+@layer components {
+  /* Glass card */
+  .glass-card {
+    @apply bg-omni-card/80 backdrop-blur-md border border-omni-border rounded-xl shadow-omni-card;
+  }
+
+  /* Accent button */
+  .btn-accent {
+    @apply px-5 py-2.5 bg-omni-accent text-omni-bg font-semibold rounded-lg
+           hover:bg-omni-accent-dim transition-all duration-200
+           shadow-omni-accent hover:shadow-none active:scale-95;
+  }
+
+  /* Ghost button */
+  .btn-ghost {
+    @apply px-5 py-2.5 border border-omni-border text-omni-muted rounded-lg
+           hover:border-omni-accent hover:text-omni-accent transition-all duration-200;
+  }
+
+  /* Nav item */
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-omni-muted
+           hover:bg-omni-hover hover:text-omni-text transition-all duration-200 cursor-pointer text-sm font-medium;
+  }
+  .nav-item.active {
+    @apply bg-omni-accent/10 text-omni-accent border border-omni-accent/20;
+  }
+
+  /* Badge */
+  .badge {
+    @apply px-2 py-0.5 text-xs font-medium rounded-md;
+  }
+  .badge-cyan {
+    @apply badge bg-omni-accent/10 text-omni-accent border border-omni-accent/20;
+  }
+  .badge-green {
+    @apply badge bg-omni-success/10 text-omni-success border border-omni-success/20;
+  }
+
+  /* Input */
+  .omni-input {
+    @apply w-full px-4 py-2.5 bg-omni-surface border border-omni-border rounded-lg
+           text-omni-text placeholder-omni-subtle text-sm
+           focus:outline-none focus:border-omni-accent focus:ring-1 focus:ring-omni-accent/30
+           transition-all duration-200;
+  }
+
+  /* Glow ring on hover */
+  .glow-ring {
+    @apply transition-all duration-300 hover:shadow-omni-accent hover:border-omni-accent/50;
+  }
+}
+
+/* Animated gradient background for landing */
+.gradient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  animation: float 8s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-20px) scale(1.05); }
+}
+
+/* Three.js canvas fix */
+canvas {
+  outline: none;
+  display: block;
+}
