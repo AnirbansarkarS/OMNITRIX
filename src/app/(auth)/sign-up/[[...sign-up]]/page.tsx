@@ -1,4 +1,5 @@
 import { SignUp } from "@clerk/nextjs";
+import OmnitrixLogo from "@/components/ui/OmnitrixLogo";
 
 export default function SignUpPage() {
     return (
@@ -7,9 +8,7 @@ export default function SignUpPage() {
 
             <div className="relative z-10 flex flex-col items-center gap-8">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-omni-accent flex items-center justify-center shadow-omni-accent">
-                        <span className="text-omni-bg font-bold text-sm">OX</span>
-                    </div>
+                    <OmnitrixLogo size={40} />
                     <span className="text-2xl font-bold text-omni-text tracking-wide">OMNITRIX</span>
                 </div>
 

@@ -52,20 +52,22 @@
   /* Accent button */
   .btn-accent {
     @apply px-5 py-2.5 bg-omni-accent text-omni-bg font-semibold rounded-lg
-           hover:bg-omni-accent-dim transition-all duration-200
-           shadow-omni-accent hover:shadow-none active:scale-95;
+           hover:bg-omni-accent-dim transition-colors duration-75
+           shadow-omni-accent hover:shadow-none active:scale-95 active:transition-none
+           cursor-pointer select-none;
   }
 
   /* Ghost button */
   .btn-ghost {
     @apply px-5 py-2.5 border border-omni-border text-omni-muted rounded-lg
-           hover:border-omni-accent hover:text-omni-accent transition-all duration-200;
+           hover:border-omni-accent hover:text-omni-accent transition-colors duration-75
+           cursor-pointer select-none;
   }
 
   /* Nav item */
   .nav-item {
     @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-omni-muted
-           hover:bg-omni-hover hover:text-omni-text transition-all duration-200 cursor-pointer text-sm font-medium;
+           hover:bg-omni-hover hover:text-omni-text transition-colors duration-75 cursor-pointer text-sm font-medium select-none;
   }
   .nav-item.active {
     @apply bg-omni-accent/10 text-omni-accent border border-omni-accent/20;
@@ -87,13 +89,19 @@
     @apply w-full px-4 py-2.5 bg-omni-surface border border-omni-border rounded-lg
            text-omni-text placeholder-omni-subtle text-sm
            focus:outline-none focus:border-omni-accent focus:ring-1 focus:ring-omni-accent/30
-           transition-all duration-200;
+           transition-colors duration-100;
   }
 
   /* Glow ring on hover */
   .glow-ring {
-    @apply transition-all duration-300 hover:shadow-omni-accent hover:border-omni-accent/50;
+    @apply transition-all duration-100 hover:shadow-omni-accent hover:border-omni-accent/50;
   }
+}
+
+/* Instant button feedback */
+button, a[class*="btn-"], .nav-item {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 /* Animated gradient background for landing */
