@@ -5,10 +5,12 @@ const isProtectedRoute = createRouteMatcher([
     "/viewer(.*)",
     "/upload(.*)",
     "/export(.*)",
+    "/generate(.*)",
 ]);
 
 export default clerkMiddleware((auth, req) => {
-    if (isProtectedRoute(req)) {
+    // Only protect page routes, not API routes
+    if (isProtectedRoute(req) && !req.nextUrl.pathname.startsWith("/api")) {
         auth().protect();
     }
 });

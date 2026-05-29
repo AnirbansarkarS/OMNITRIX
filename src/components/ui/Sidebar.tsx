@@ -13,15 +13,18 @@ import {
 } from "lucide-react";
 import OmnitrixLogo from "./OmnitrixLogo";
 
-const navItems = [
+const phase1Items = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/viewer", label: "3D Viewer", icon: Box },
     { href: "/upload", label: "Upload", icon: Upload },
     { href: "/export", label: "Export", icon: Download },
 ];
 
+const phase2Items = [
+    { href: "/generate", label: "Text → 3D", icon: Sparkles },
+];
+
 const comingSoon = [
-    { label: "Text → 3D", icon: Sparkles },
     { label: "Image → 3D", icon: ImagePlay },
 ];
 
@@ -41,9 +44,9 @@ export default function Sidebar() {
             {/* Nav */}
             <nav className="flex-1 px-3 py-4 space-y-1">
                 <p className="text-[10px] font-semibold text-omni-subtle uppercase tracking-widest px-3 mb-3">
-                    Phase 1
+                    Phase 1 - Foundation
                 </p>
-                {navItems.map(({ href, label, icon: Icon }) => {
+                {phase1Items.map(({ href, label, icon: Icon }) => {
                     const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
                     return (
                         <Link key={href} href={href} className={`nav-item ${active ? "active" : ""}`}>
@@ -53,6 +56,22 @@ export default function Sidebar() {
                         </Link>
                     );
                 })}
+
+                <div className="pt-4">
+                    <p className="text-[10px] font-semibold text-omni-subtle uppercase tracking-widest px-3 mb-3">
+                        Phase 2 - AI Core
+                    </p>
+                    {phase2Items.map(({ href, label, icon: Icon }) => {
+                        const active = pathname === href || pathname.startsWith(href);
+                        return (
+                            <Link key={href} href={href} className={`nav-item ${active ? "active" : ""}`}>
+                                <Icon size={16} />
+                                {label}
+                                {active && <ChevronRight size={12} className="ml-auto opacity-60" />}
+                            </Link>
+                        );
+                    })}
+                </div>
 
                 <div className="pt-4">
                     <p className="text-[10px] font-semibold text-omni-subtle uppercase tracking-widest px-3 mb-3">
@@ -77,11 +96,11 @@ export default function Sidebar() {
             <div className="px-4 py-4 border-t border-omni-border">
                 <div className="glass-card p-3 text-center">
                     <p className="text-[10px] text-omni-muted mb-1">Current Phase</p>
-                    <p className="text-xs font-semibold text-omni-accent">Foundation</p>
+                    <p className="text-xs font-semibold text-omni-accent">AI Core (Phase 2)</p>
                     <div className="mt-2 w-full bg-omni-border rounded-full h-1">
-                        <div className="bg-omni-accent h-1 rounded-full w-1/4 transition-all" />
+                        <div className="bg-omni-accent h-1 rounded-full w-1/2 transition-all" />
                     </div>
-                    <p className="text-[10px] text-omni-subtle mt-1">1 / 4 phases</p>
+                    <p className="text-[10px] text-omni-subtle mt-1">2 / 4 phases</p>
                 </div>
             </div>
         </aside>
