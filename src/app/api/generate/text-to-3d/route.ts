@@ -28,7 +28,50 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create demo task directly without importing service
+    const apiKey = process.env.TRIPO3D_API_KEY;
+
+    // Use Tripo3D API if key is present
+    if (apiKey) {
+      const tripoRes = await fetch("https://api.tripo3d.ai/v2/openapi/task", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          type: "text_to_model",
+          prompt,
+        }),
+      });
+
+      if (!tripoRes.ok) {
+        const err = await tripoRes.text();
+        return NextResponse.json(
+          { error: `Tripo3D API error: ${err}` },
+          { status: tripoRes.status }
+        );
+      }
+
+      const tripoData = await tripoRes.json();
+      if (tripoData.code !== 0 || !tripoData.data?.task_id) {
+        return NextResponse.json(
+          { error: "Tripo3D API failed to create task", details: tripoData },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json(
+        {
+          success: true,
+          taskId: tripoData.data.task_id,
+          message: "Generation started",
+          isDemoMode: false,
+        },
+        { status: 202 }
+      );
+    }
+
+    // Fallback: Create demo task
     const taskId = `demo_task_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
     return NextResponse.json(
