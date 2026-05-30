@@ -2,17 +2,17 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useModelStore } from "@/lib/store";
-import { Sparkles, Loader2, AlertCircle, Copy, Check } from "lucide-react";
+import { Sparkles, Loader2, AlertCircle, Copy, Check, Image as ImageIcon } from "lucide-react";
 
 type Style = "realistic" | "cartoon" | "anime" | "creative";
 
 export function TextToModel() {
   const [prompt, setPrompt] = useState("");
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [style, setStyle] = useState<Style>("realistic");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [isDemoMode, setIsDemoMode] = useState(false);
   const pollIntervalRef = useRef<NodeJS.Timeout>();
 
   const {
@@ -22,6 +22,17 @@ export function TextToModel() {
     completeGeneration,
     failGeneration,
   } = useModelStore();
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageBase64(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Poll for task status
   useEffect(() => {
@@ -61,8 +72,8 @@ export function TextToModel() {
     e.preventDefault();
     setError(null);
 
-    if (!prompt.trim()) {
-      setError("Please enter a prompt");
+    if (!prompt.trim() && !imageBase64) {
+      setError("Please enter a prompt or upload an image");
       return;
     }
 
@@ -79,6 +90,7 @@ export function TextToModel() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: prompt.trim(),
+          imageBase64,
           style,
         }),
       });
@@ -105,16 +117,16 @@ export function TextToModel() {
         throw new Error(data.error || "Generation request failed");
       }
 
-      setIsDemoMode(data.isDemoMode || false);
       setGenerationTask({
         id: data.taskId,
-        prompt: prompt.trim(),
-        status: "pending",
+        prompt: prompt.trim() || (imageBase64 ? "Image Uploaded" : ""),
+        status: "processing",
         progress: 0,
         createdAt: new Date().toISOString(),
       });
 
       setPrompt("");
+      setImageBase64(null);
     } catch (err) {
       const errorMsg =
         err instanceof Error ? err.message : "Failed to start generation";
@@ -136,36 +148,20 @@ export function TextToModel() {
     <div className="w-full space-y-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950">
       <div className="flex items-center gap-2">
         <Sparkles className="h-5 w-5 text-blue-500" />
-        <h3 className="font-semibold">Text to 3D Model</h3>
-        {isDemoMode && (
-          <span className="ml-auto text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100 px-2 py-1 rounded">
-            Demo Mode
-          </span>
-        )}
+        <h3 className="font-semibold">AI 3D Generator (Text/Image)</h3>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Demo Mode Info */}
-        {isDemoMode && (
-          <div className="rounded-md bg-yellow-50 p-3 dark:bg-yellow-950 flex gap-2">
-            <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-yellow-700 dark:text-yellow-300">
-              Running in demo mode. Configure{" "}
-              <code className="font-mono text-xs">TRIPO3D_API_KEY</code> for production use.
-            </p>
-          </div>
-        )}
-
         {/* Prompt Input */}
         <div>
           <label htmlFor="prompt" className="block text-sm font-medium mb-2">
-            Describe your 3D model
+            Describe your 3D model (or supply an image below)
           </label>
           <textarea
             id="prompt"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="E.g., A beautiful oak tree in a forest, detailed bark texture, autumn colors..."
+            placeholder="E.g., A beautiful oak tree in a forest, detailed bark texture, autumn colors... (Leave blank if only uploading image)"
             disabled={isLoading}
             className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:placeholder-gray-500 disabled:opacity-50"
             rows={4}
@@ -173,6 +169,27 @@ export function TextToModel() {
           <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
             {prompt.length}/1000 characters
           </div>
+        </div>
+
+        {/* Image Upload Input */}
+        <div>
+          <label htmlFor="image-upload" className="block text-sm font-medium mb-2 flex items-center gap-2">
+            <ImageIcon className="h-4 w-4 text-gray-500" />
+            Upload Picture
+          </label>
+          <input
+            id="image-upload"
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            disabled={isLoading}
+            className="w-full block text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50 dark:file:bg-blue-900 dark:file:text-blue-200"
+          />
+          {imageBase64 && (
+            <div className="mt-2 text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+              <Check className="h-3 w-3" /> Image currently selected for 3D Generation
+            </div>
+          )}
         </div>
 
         {/* Style Selection */}
@@ -246,9 +263,9 @@ export function TextToModel() {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={isLoading || !prompt.trim()}
+          disabled={isLoading || (!prompt.trim() && !imageBase64)}
           className={`w-full rounded-md px-4 py-2 font-medium text-white transition flex items-center justify-center gap-2 ${
-            isLoading || !prompt.trim()
+            isLoading || (!prompt.trim() && !imageBase64)
               ? "cursor-not-allowed bg-gray-300 dark:bg-gray-700"
               : "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
           }`}
