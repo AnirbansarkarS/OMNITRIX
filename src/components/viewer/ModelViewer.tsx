@@ -53,15 +53,19 @@ function ModelScene({
     url,
     ext,
     onLoad,
+    onError,
 }: {
     url: string;
     ext: string;
     onLoad: (obj: THREE.Object3D, stats: Stats) => void;
+    onError?: (error: Error) => void;
 }) {
     const [object, setObject] = useState<THREE.Object3D | null>(null);
     const { scene: threeScene } = useThree();
 
-    useEffect(() => {
+    // Note: exhaustive-deps disabled because 'object' is intentionally closure-captured
+    // eslint-disable-next-line react-hooks/exhaustive-deps  
+    useEffect(() => { // eslint-disable-line react-hooks/exhaustive-deps
         let cancelled = false;
 
         async function load() {
@@ -110,6 +114,10 @@ function ModelScene({
                 }
             } catch (err) {
                 console.error("Model load error:", err);
+                const error = err instanceof Error ? err : new Error("Failed to load model");
+                if (!cancelled && onError) {
+                    onError(error);
+                }
                 return;
             }
 
@@ -150,11 +158,24 @@ function ModelScene({
             });
         }
 
+        // Set a 60-second timeout for model loading
+        const timeout = setTimeout(() => {
+            if (!cancelled && !object) {
+                cancelled = true;
+                const error = new Error("Model loading timeout - please try another model");
+                console.error(error);
+                if (onError) {
+                    onError(error);
+                }
+            }
+        }, 60000);
+
         load();
         return () => {
             cancelled = true;
+            clearTimeout(timeout);
         };
-    }, [url, ext, onLoad, threeScene]);
+    }, [url, ext, onLoad, onError, threeScene]);
 
     if (!object) return null;
     return <primitive object={object} />;
@@ -190,6 +211,7 @@ const ModelViewer = forwardRef<ModelViewerHandle, ModelViewerProps>(
     function ModelViewer({ url, ext, onSceneLoad, className }, ref) {
         const [stats, setStats] = useState<Stats | null>(null);
         const [loading, setLoading] = useState(false);
+        const [error, setError] = useState<string | null>(null);
         const sceneRef = useRef<THREE.Object3D | null>(null);
 
         useImperativeHandle(ref, () => ({
@@ -200,13 +222,21 @@ const ModelViewer = forwardRef<ModelViewerHandle, ModelViewerProps>(
             sceneRef.current = obj;
             setStats(s);
             setLoading(false);
+            setError(null);
             onSceneLoad?.(obj);
+        };
+
+        const handleLoadError = (err: Error) => {
+            setLoading(false);
+            setError(err.message);
+            setStats(null);
         };
 
         useEffect(() => {
             if (url) {
                 setLoading(true);
                 setStats(null);
+                setError(null);
             }
         }, [url]);
 
@@ -230,7 +260,7 @@ const ModelViewer = forwardRef<ModelViewerHandle, ModelViewerProps>(
                     <Suspense fallback={<Spinner />}>
                         {url && ext ? (
                             <Center>
-                                <ModelScene url={url} ext={ext} onLoad={handleLoad} />
+                                <ModelScene url={url} ext={ext} onLoad={handleLoad} onError={handleLoadError} />
                             </Center>
                         ) : (
                             <DemoMesh />
@@ -268,6 +298,17 @@ const ModelViewer = forwardRef<ModelViewerHandle, ModelViewerProps>(
                         <div className="flex flex-col items-center gap-3">
                             <div className="w-8 h-8 border-2 border-omni-accent border-t-transparent rounded-full animate-spin" />
                             <p className="text-xs text-omni-muted">Loading model…</p>
+                        </div>
+                    </div>
+                )}
+
+                {/* Error overlay */}
+                {error && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-red-500/10 backdrop-blur-sm pointer-events-none">
+                        <div className="flex flex-col items-center gap-3 px-4 text-center">
+                            <div className="text-red-500 text-2xl">⚠️</div>
+                            <p className="text-sm text-red-400">{error}</p>
+                            <p className="text-xs text-omni-muted">Try uploading a different model</p>
                         </div>
                     </div>
                 )}
