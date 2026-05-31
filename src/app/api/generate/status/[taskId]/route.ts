@@ -67,7 +67,8 @@ export async function GET(
       };
 
       if (status === "completed") {
-        response.model_url = "https://threejs.org/examples/models/gltf/DamagedHelmet/glTF/DamagedHelmet.glb";
+        // Return a generated model endpoint instead of external URL to avoid CORS issues
+        response.model_url = `/api/generate/models/${taskId}.glb`;
       }
 
       return NextResponse.json(response, { status: 200 });

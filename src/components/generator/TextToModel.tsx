@@ -46,15 +46,19 @@ export function TextToModel() {
         if (!response.ok) throw new Error("Failed to fetch status");
 
         const data = await response.json();
+        console.log("Poll response:", data);
 
         if (data.status === "completed" && data.model_url) {
+          console.log("Generation completed! Model URL:", data.model_url);
           completeGeneration(generationTask.id, data.model_url);
           setIsLoading(false);
         } else if (data.status === "failed") {
+          console.error("Generation failed:", data.error);
           failGeneration(generationTask.id, data.error || "Generation failed");
           setError(data.error || "Generation failed");
           setIsLoading(false);
         } else if (data.status === "processing") {
+          console.log("Still processing, progress:", data.progress);
           updateGenerationProgress(generationTask.id, data.progress || 50);
         }
       } catch (err) {
