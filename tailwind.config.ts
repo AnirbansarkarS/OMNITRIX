@@ -41,6 +41,7 @@ const config: Config = {
                 "glow": "glow 2s ease-in-out infinite alternate",
                 "slide-in": "slideIn 0.3s ease-out",
                 "fade-in": "fadeIn 0.4s ease-out",
+                "shimmer": "shimmer 1.5s linear infinite",
             },
             keyframes: {
                 float: {
@@ -58,6 +59,10 @@ const config: Config = {
                 fadeIn: {
                     from: { opacity: "0" },
                     to: { opacity: "1" },
+                },
+                shimmer: {
+                    "0%": { transform: "translateX(-100%)" },
+                    "100%": { transform: "translateX(100%)" },
                 },
             },
             boxShadow: {
