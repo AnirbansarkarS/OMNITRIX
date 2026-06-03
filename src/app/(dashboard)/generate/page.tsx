@@ -13,60 +13,45 @@ export default function GeneratePage() {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (modelUrl && modelExt) {
+      console.log("Model store updated:", { modelUrl, modelExt });
+    }
+  }, [modelUrl, modelExt]);
+
   if (!mounted) return null;
 
   const hasModel = modelUrl && modelExt;
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 min-h-0">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {/* Generator Panel */}
-      <div className="flex flex-col gap-4 min-h-0">
+      <div className="flex flex-col gap-6">
         <TextToModel />
-        {generationTask && generationTask.status === "completed" && generationTask.modelUrl && (
-          <div className="rounded-md bg-gray-50 p-3 dark:bg-gray-900 text-xs text-gray-500 dark:text-gray-400 break-all">
-            <strong>Model URL:</strong> {generationTask.modelUrl}
+        {generationTask && (
+          <div className="rounded-md bg-gray-50 p-3 dark:bg-gray-900 text-sm text-gray-600 dark:text-gray-400">
+            <p><strong>Task ID:</strong> {generationTask.id.substring(0, 20)}...</p>
+            <p><strong>Status:</strong> {generationTask.status}</p>
+            <p><strong>Progress:</strong> {generationTask.progress}%</p>
+            {generationTask.modelUrl && (
+              <p><strong>Model URL:</strong> {generationTask.modelUrl}</p>
+            )}
           </div>
         )}
       </div>
 
       {/* Viewer Panel */}
-      <div className="flex flex-col gap-4">
-        <div className="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950 flex flex-col overflow-hidden" style={{ height: "560px" }}>
-          <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between flex-shrink-0">
-            <h3 className="font-semibold text-sm">3D Preview</h3>
-            {hasModel && (
-              <span className="text-xs text-omni-accent bg-omni-accent/10 px-2 py-0.5 rounded-full">
-                Model loaded
-              </span>
-            )}
-          </div>
-
-          <div className="flex-1 min-h-0">
+      <div className="flex flex-col gap-6">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950 flex-1 flex flex-col">
+          <h3 className="font-semibold mb-4">3D Preview</h3>
+          <div className="flex-1">
             {hasModel ? (
-              <ModelViewer
-                key={modelUrl}
-                url={modelUrl}
-                ext={modelExt}
-                className="w-full h-full"
-              />
+              <div key={modelUrl}>
+                <ModelViewer url={modelUrl} ext={modelExt} />
+              </div>
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-gray-400 dark:text-gray-600">
-                <div className="rounded-full bg-gray-100 dark:bg-gray-800 p-6">
-                  <svg
-                    className="h-10 w-10 opacity-40"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1}
-                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                    />
-                  </svg>
-                </div>
-                <p className="text-sm">Upload an image to generate a 3D model</p>
+              <div className="w-full h-96 rounded-md bg-gray-100 dark:bg-gray-900 flex items-center justify-center text-gray-500 dark:text-gray-400">
+                Generate a model to see preview here
               </div>
             )}
           </div>

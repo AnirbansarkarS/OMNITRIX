@@ -27,6 +27,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 export function createTask(taskId: string): void {
+    console.log(`[taskStore] Creating task: ${taskId}`);
     taskStore.set(taskId, {
         status: "pending",
         progress: 0,
@@ -35,7 +36,14 @@ export function createTask(taskId: string): void {
 }
 
 export function getTask(taskId: string): TaskEntry | undefined {
-    return taskStore.get(taskId);
+    const task = taskStore.get(taskId);
+    if (!task) {
+        console.warn(`[taskStore] Task NOT found: ${taskId}. Current store size: ${taskStore.size}`);
+        if (taskStore.size > 0) {
+            console.log(`[taskStore] Available IDs: ${Array.from(taskStore.keys()).join(", ")}`);
+        }
+    }
+    return task;
 }
 
 export function updateTask(taskId: string, update: Partial<TaskEntry>): void {
