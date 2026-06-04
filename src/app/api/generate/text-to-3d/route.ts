@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createTask, updateTask, setTaskGlb, failTask, pruneOldTasks } from "@/lib/taskStore";
+import fs from "fs/promises";
+import path from "path";
+import os from "os";
 
 /**
  * POST /api/generate/text-to-3d
@@ -65,9 +68,10 @@ async function runStableFast3D(
     const hfToken = process.env.HUGGINGFACE_TOKEN as `hf_${string}` | undefined;
 
     // Connect to the public Space (anonymous or with token)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const client = await Client.connect("stabilityai/stable-fast-3d", {
       hf_token: hfToken,
-    });
+    } as any);
 
     console.log(`[SF3D] Connected to HuggingFace Space`);
     updateTask(taskId, { progress: 15 });
@@ -126,6 +130,16 @@ async function runStableFast3D(
     }
 
     console.log(`[SF3D] GLB ready: ${glbBuffer.length} bytes`);
+
+    // Write to filesystem so the model-serving route can read it
+    // even if Next.js loads this module and that route in separate contexts.
+    const modelDir = path.join(os.tmpdir(), "omnitrix-models");
+    await fs.mkdir(modelDir, { recursive: true });
+    const glbPath = path.join(modelDir, `${taskId}.glb`);
+    await fs.writeFile(glbPath, glbBuffer);
+    console.log(`[SF3D] GLB written to: ${glbPath}`);
+
+    // Also keep in-memory store as a fast path
     setTaskGlb(taskId, glbBuffer);
   } catch (err) {
     console.error(`[SF3D] Job failed for ${taskId}:`, err);
