@@ -44,13 +44,13 @@ export default function GeneratePage() {
       <div className="flex flex-col gap-6">
         <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950 flex-1 flex flex-col">
           <h3 className="font-semibold mb-4">3D Preview</h3>
-          <div className="flex-1">
+          <div className="flex-1 min-h-[400px] relative">
             {hasModel ? (
-              <div key={modelUrl}>
-                <ModelViewer url={modelUrl} ext={modelExt} />
+              <div key={modelUrl} className="w-full h-full absolute inset-0">
+                <ModelViewer url={modelUrl} ext={modelExt} className="w-full h-full" />
               </div>
             ) : (
-              <div className="w-full h-96 rounded-md bg-gray-100 dark:bg-gray-900 flex items-center justify-center text-gray-500 dark:text-gray-400">
+              <div className="w-full h-full absolute inset-0 rounded-md bg-gray-100 dark:bg-gray-900 flex items-center justify-center text-gray-500 dark:text-gray-400">
                 Generate a model to see preview here
               </div>
             )}

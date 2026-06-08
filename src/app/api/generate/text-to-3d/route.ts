@@ -89,22 +89,22 @@ async function runStableFast3D(
     console.log(`[SF3D] Image blob ready (${imageBlob.size} bytes), calling predict...`);
     updateTask(taskId, { progress: 25 });
 
-    // Call the /run/generate endpoint on the Space
-    // Parameters: image, foreground_ratio (0.85), texture_resolution ("1024"), mc_resolution (256), remove_background (true)
-    const result = await client.predict("/run/generate", {
-      image: imageBlob,
+    // Call the /run_button endpoint on the Space (NOT /run/generate)
+    // Parameters: input_image, foreground_ratio (0.85), remesh_option ("None"), vertex_count (-1), texture_size (1024)
+    const result = await client.predict("/run_button", {
+      input_image: imageBlob,
       foreground_ratio: 0.85,
-      output_format: "glb",
-      texture_resolution: "1024",
-      mc_resolution: 256,
-      remove_background: true,
+      remesh_option: "None",
+      vertex_count: -1,
+      texture_size: 1024,
     });
 
     updateTask(taskId, { progress: 90 });
     console.log(`[SF3D] Predict returned, processing result...`);
 
-    // The Space returns an array; first element is the output file URL or object
-    const output = (result.data as unknown[])?.[0];
+    // The Space returns an array: [preview_image, 3d_model]
+    // The GLB is at index 1.
+    const output = (result.data as unknown[])?.[1];
     let glbBuffer: Buffer | null = null;
 
     if (output && typeof output === "object" && "url" in output) {
@@ -121,8 +121,8 @@ async function runStableFast3D(
     } else if (typeof output === "string" && output.startsWith("http")) {
       const res = await fetch(output);
       if (!res.ok) throw new Error(`Failed to download GLB from string URL: ${res.status}`);
-      const ab = await res.arrayBuffer();
-      glbBuffer = Buffer.from(ab);
+      const arrayBuf = await res.arrayBuffer();
+      glbBuffer = Buffer.from(arrayBuf);
     }
 
     if (!glbBuffer || glbBuffer.length < 100) {
