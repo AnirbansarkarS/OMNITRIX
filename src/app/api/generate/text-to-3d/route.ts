@@ -42,9 +42,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, taskId }, { status: 202 });
   } catch (error) {
-    console.error("[SF3D] POST error:", error);
+    console.error("[SF3D] POST error detail:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Server error" },
+      { error: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

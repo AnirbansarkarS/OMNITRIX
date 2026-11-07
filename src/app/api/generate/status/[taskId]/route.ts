@@ -66,6 +66,7 @@ export async function GET(
       response.error = task.error ?? "Generation failed";
     }
 
+    console.log(`[status] Sending response for ${taskId}:`, JSON.stringify(response, null, 2));
     return NextResponse.json(response);
   } catch (error) {
     console.error("Status route error:", error);
